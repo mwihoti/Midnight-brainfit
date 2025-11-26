@@ -1,7 +1,0 @@
-{
-  "/player/page": "app/player/page.js",
-  "/page": "app/page.js",
-  "/player/memory/page": "app/player/memory/page.js",
-  "/player/puzzle/page": "app/player/puzzle/page.js",
-  "/caregiver/page": "app/caregiver/page.js"
-}
