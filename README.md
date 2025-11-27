@@ -6,6 +6,7 @@ Private Cognitive Health Tracker for Dementia powered by Midnight Blockchain
 
 GameFit is an MVP that combines engaging cognitive games with privacy-preserving blockchain technology to help patients with dementia and individuals seeking to improve their cognitive health. The platform leverages Midnight blockchain to keep all data encrypted while enabling secure caregiver access.
 
+
 ## Features
 
 ### 🎮 Patient App
