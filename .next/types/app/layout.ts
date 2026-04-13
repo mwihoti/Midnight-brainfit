@@ -1,4 +1,4 @@
-// File: /home/daniel/work/startups/brainfit/app/layout.tsx
+// File: /home/mwihotidan/work/startups/Midnight-brainfit/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

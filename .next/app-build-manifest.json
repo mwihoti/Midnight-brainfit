@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/page": [
+    "/player/nfts/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/player/nfts/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -16,15 +16,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/player/page.js"
     ],
-    "/player/memory/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/player/memory/page.js"
-    ],
-    "/player/puzzle/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/player/puzzle/page.js"
+      "static/chunks/app/page.js"
     ],
     "/caregiver/page": [
       "static/chunks/webpack.js",

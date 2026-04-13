@@ -1,38 +1,142 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Loader2 } from 'lucide-react'
+import { PuzzleGame } from '@/components/PuzzleGame'
+import { GameResults } from '@/components/GameResults'
+import { NFTMintModal } from '@/components/NFTMintModal'
+import { useGameStore, initPlayer, savePlayer } from '@/lib/store'
+import { checkAchievements, mintNFTs, getLocalNFTs } from '@/lib/services/nftService'
+import { storeMetricsOnChain } from '@/lib/services/midnightService'
+import type { MintedNFT } from '@/lib/services/nftService'
+import type { GameMetrics } from '@/lib/store'
 
 export default function PuzzleGamePage() {
+  const router = useRouter()
+  const difficulty = useGameStore((s) => s.difficulty)
+  const store = useGameStore()
+
+  const [gameMetrics, setGameMetrics] = useState<GameMetrics | null>(null)
+  const [newNFTs, setNewNFTs] = useState<MintedNFT[]>([])
+  const [showNFTModal, setShowNFTModal] = useState(false)
+  const [minting, setMinting] = useState(false)
+  const [mintError, setMintError] = useState<string | null>(null)
+
+  const handleComplete = useCallback(
+    async (score: number, timeSpent: number, moves: number) => {
+      const walletAddress =
+        localStorage.getItem('walletAddress') || `guest_${Date.now()}`
+
+      const player = store.player ?? initPlayer(walletAddress)
+
+      const metric: GameMetrics = {
+        id: `${Date.now()}`,
+        playerId: player.id,
+        gameType: 'puzzle',
+        score,
+        timeSpent,
+        difficulty,
+        timestamp: new Date().toISOString(),
+        encrypted: true,
+      }
+
+      setGameMetrics(metric)
+
+      const updatedGamesPlayed = player.gamesPlayed + 1
+      const updatedPlayedTypes = Array.from(
+        new Set([...player.playedGameTypes, 'puzzle'])
+      )
+
+      const updatedPlayer = {
+        ...player,
+        gamesPlayed: updatedGamesPlayed,
+        totalScore: player.totalScore + score,
+        lastPlayed: new Date().toISOString(),
+        metrics: [...player.metrics, metric],
+        playedGameTypes: updatedPlayedTypes,
+      }
+
+      store.setPlayer(updatedPlayer)
+      store.endGame(score, timeSpent)
+      store.addMetrics(metric)
+
+      storeMetricsOnChain(walletAddress, JSON.stringify(metric)).catch(() => undefined)
+
+      const ownedIds = getLocalNFTs(walletAddress).map((n) => n.achievementId)
+      const earnedIds = checkAchievements(
+        { gameType: 'puzzle', score, timeSpent, moves, difficulty },
+        ownedIds,
+        updatedGamesPlayed,
+        new Set(updatedPlayedTypes)
+      )
+
+      if (earnedIds.length > 0) {
+        setMinting(true)
+        try {
+          const minted = await mintNFTs(walletAddress, earnedIds)
+          minted.forEach((nft) => store.addNFT(nft))
+          savePlayer({ ...updatedPlayer, nfts: [...updatedPlayer.nfts, ...minted] })
+          setNewNFTs(minted)
+          setShowNFTModal(true)
+        } catch (err) {
+          console.error('NFT minting failed:', err)
+          setMintError('NFTs could not be minted right now. Progress saved locally.')
+          savePlayer(updatedPlayer)
+        } finally {
+          setMinting(false)
+        }
+      } else {
+        savePlayer(updatedPlayer)
+      }
+    },
+    [difficulty, store]
+  )
+
+  const handleNFTModalClose = () => {
+    setShowNFTModal(false)
+    router.push('/player/nfts')
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 p-6">
+    <div className="min-h-screen bg-[#000009] p-6">
       <div className="max-w-4xl mx-auto">
         <Link href="/player">
-          <button className="flex items-center gap-2 text-slate-400 hover:text-purple-400 transition-colors mb-8">
+          <button className="flex items-center gap-2 text-slate-400 hover:text-pink-400 transition-colors mb-8">
             <ArrowLeft className="w-5 h-5" />
             Back to Games
           </button>
         </Link>
 
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-pink-300 mb-12 text-center">Puzzle Game</h1>
-          
-          <div className="bg-gradient-to-br from-pink-900/40 to-slate-900/40 border border-pink-500/30 rounded-xl p-12 text-center space-y-6">
-            <div className="text-6xl">🧩</div>
-            <h2 className="text-2xl font-bold text-pink-200">Coming Soon</h2>
-            <p className="text-slate-300 text-lg">The Puzzle Game is under development and will be available soon.</p>
-            <p className="text-slate-400 text-sm">Test your problem-solving skills with our tile-rearrangement puzzle game.</p>
-            
-            <div className="pt-6">
-              <Link href="/player">
-                <button className="px-6 py-3 bg-pink-600 hover:bg-pink-700 rounded-lg font-semibold transition-colors">
-                  Back to Games
-                </button>
-              </Link>
-            </div>
+        <h1 className="text-3xl font-bold text-pink-300 mb-8 text-center">Puzzle Game</h1>
+
+        {minting ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Loader2 className="w-10 h-10 text-pink-400 animate-spin" />
+            <p className="text-slate-300 text-sm">Minting your NFT on Midnight preprod…</p>
           </div>
-        </div>
+        ) : gameMetrics ? (
+          <div className="flex flex-col items-center gap-6">
+            {mintError && (
+              <div className="w-full max-w-md p-3 bg-yellow-900/30 border border-yellow-500/40 rounded-lg text-sm text-yellow-300">
+                {mintError}
+              </div>
+            )}
+            <GameResults
+              metrics={gameMetrics}
+              earnedNFTs={newNFTs}
+              onClose={() => router.push('/player')}
+            />
+          </div>
+        ) : (
+          <PuzzleGame onComplete={handleComplete} />
+        )}
       </div>
+
+      {showNFTModal && (
+        <NFTMintModal nfts={newNFTs} onClose={handleNFTModalClose} />
+      )}
     </div>
   )
 }

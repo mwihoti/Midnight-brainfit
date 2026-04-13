@@ -3,8 +3,8 @@ import { Providers } from './providers'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'GameFit - Cognitive Health Tracker',
-  description: 'Private cognitive health tracking for dementia care powered by Midnight blockchain',
+  title: 'BrainFit — Brain Training Games',
+  description: 'Memory and puzzle games for kids and adults. Train your brain, earn achievements, keep your data private.',
   icons: {
     icon: '/favicon.ico',
   },
@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-slate-950 text-slate-100">
+      <body className="bg-[#000009] text-slate-100">
         <Providers>
           {children}
         </Providers>

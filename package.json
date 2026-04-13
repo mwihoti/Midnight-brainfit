@@ -1,14 +1,17 @@
 {
-  "name": "gamefit",
-  "version": "0.1.0",
-  "description": "Private Cognitive Health Tracker for Dementia powered by Midnight",
+  "name": "brainfit",
+  "version": "0.2.0",
+  "description": "Brain training games for kids and adults — memory, puzzles, achievements.",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:extension": "NEXT_EXPORT=true next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "compact:compile": "compact compile contracts/src/brainfit.compact contracts/src/managed/brainfit",
+    "compact:copy-keys": "cp -r contracts/src/managed/brainfit public/managed/brainfit"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -17,14 +20,29 @@
     "zustand": "^4.4.1",
     "lucide-react": "^0.310.0",
     "axios": "^1.6.5",
-    "ethers": "^6.0.0",
-    "midnight-js": "^0.1.0"
+    "rxjs": "^7.8.2",
+    "fp-ts": "^2.16.11",
+    "semver": "^7.7.4",
+    "pino": "^10.3.1",
+    "@midnight-ntwrk/compact-runtime": "0.15.0",
+    "@midnight-ntwrk/dapp-connector-api": "4.0.0",
+    "@midnight-ntwrk/ledger-v7": "7.0.0",
+    "@midnight-ntwrk/midnight-js-compact": "3.0.0",
+    "@midnight-ntwrk/midnight-js-contracts": "3.0.0",
+    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-types": "3.0.0",
+    "@midnight-ntwrk/midnight-js-utils": "3.0.0",
+    "@midnight-ntwrk/midnight-js-network-id": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-facade": "1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "@types/node": "^20.10.6",
+    "@types/semver": "^7.7.1",
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.32",
     "autoprefixer": "^10.4.17",

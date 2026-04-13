@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "BrainFit — Brain Training Games",
+  "short_name": "BrainFit",
+  "version": "1.0.0",
+  "description": "Memory and puzzle games for kids and adults. Train your brain, earn achievements, keep your data private.",
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "BrainFit"
+  },
+  "permissions": ["storage"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["_next/*", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

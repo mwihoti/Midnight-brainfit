@@ -1,15 +1,17 @@
 'use client'
 
 import { GameMetrics } from '@/lib/store'
+import type { MintedNFT } from '@/lib/services/nftService'
+import { NFTBadge } from './NFTBadge'
 
 interface GameResultsProps {
   metrics: GameMetrics
+  earnedNFTs?: MintedNFT[]
   onClose?: () => void
 }
 
-export function GameResults({ metrics, onClose }: GameResultsProps) {
+export function GameResults({ metrics, earnedNFTs = [], onClose }: GameResultsProps) {
   const calculatePerformance = () => {
-    // Performance score based on metrics
     const baseScore = 100
     const difficultyFactor = metrics.difficulty / 5
     const timeBonus = Math.max(0, 100 - metrics.timeSpent)
@@ -27,7 +29,7 @@ export function GameResults({ metrics, onClose }: GameResultsProps) {
       {/* Score */}
       <div className="mb-6 text-center p-4 bg-slate-700/50 rounded-lg">
         <p className="text-sm text-slate-400 mb-2">Score</p>
-        <p className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <p className="text-4xl font-bold text-purple-300">
           {metrics.score}
         </p>
       </div>
@@ -52,25 +54,42 @@ export function GameResults({ metrics, onClose }: GameResultsProps) {
         </div>
       </div>
 
+      {/* NFTs Earned */}
+      {earnedNFTs.length > 0 && (
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-purple-300 mb-3">
+            NFTs Earned ({earnedNFTs.length})
+          </p>
+          <div className="flex gap-3 flex-wrap">
+            {earnedNFTs.map((nft) => (
+              <NFTBadge key={nft.tokenId} nft={nft} size="sm" showDetails={false} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Encryption Status */}
-      <div className="mb-6 p-3 bg-green-900/30 border border-green-500/30 rounded flex items-center gap-2">
-        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-        <span className="text-xs text-green-300">Data encrypted and secured</span>
+      <div className={`mb-6 p-3 rounded flex items-center gap-2 ${
+        metrics.encrypted
+          ? 'bg-green-900/30 border border-green-500/30'
+          : 'bg-slate-700/50 border border-slate-600/30'
+      }`}>
+        <div className={`w-2 h-2 rounded-full ${metrics.encrypted ? 'bg-green-500' : 'bg-slate-500'}`} />
+        <span className={`text-xs ${metrics.encrypted ? 'text-green-300' : 'text-slate-400'}`}>
+          {metrics.encrypted
+            ? 'Data encrypted (AES-256-GCM) and stored on Midnight preprod'
+            : 'Stored locally — connect wallet to sync to Midnight'}
+        </span>
       </div>
 
       {/* Actions */}
       {onClose && (
-        <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded transition-colors text-sm font-semibold"
-          >
-            Back to Menu
-          </button>
-          <button className="flex-1 px-4 py-2 border border-purple-500 text-purple-300 hover:bg-purple-500/10 rounded transition-colors text-sm font-semibold">
-            Share Results
-          </button>
-        </div>
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded transition-colors text-sm font-semibold"
+        >
+          Back to Menu
+        </button>
       )}
     </div>
   )

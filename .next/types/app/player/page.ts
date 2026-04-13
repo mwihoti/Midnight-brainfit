@@ -1,4 +1,4 @@
-// File: /home/daniel/work/startups/brainfit/app/player/page.tsx
+// File: /home/mwihotidan/work/startups/Midnight-brainfit/app/player/page.tsx
 import * as entry from '../../../../app/player/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

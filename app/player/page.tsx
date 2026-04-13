@@ -1,11 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, Gamepad2, Puzzle } from 'lucide-react'
+import { ArrowLeft, Gamepad2, Puzzle, Award } from 'lucide-react'
+import { WalletConnector } from '@/components/WalletConnector'
+import { useGameStore } from '@/lib/store'
 
 export default function PlayerPage() {
+  const player = useGameStore((s) => s.player)
+
+  const gamesPlayed = player?.gamesPlayed ?? 0
+  const totalScore = player?.totalScore ?? 0
+  const nftCount = player?.nfts?.length ?? 0
+  const avgTime =
+    player?.metrics && player.metrics.length > 0
+      ? Math.round(player.metrics.reduce((sum, m) => sum + m.timeSpent, 0) / player.metrics.length)
+      : null
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 p-6">
+    <div className="min-h-screen bg-[#000009] p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
@@ -16,14 +28,13 @@ export default function PlayerPage() {
             </button>
           </Link>
           <h1 className="text-3xl font-bold text-purple-300">Select a Game</h1>
-          <div className="w-16"></div>
+          <WalletConnector />
         </div>
 
         {/* Game Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Memory Game */}
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
           <Link href="/player/memory">
-            <div className="group bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-8 cursor-pointer transform transition-all duration-300 hover:scale-105 border border-purple-400/30 hover:border-purple-400 min-h-64 flex flex-col justify-between">
+            <div className="group bg-purple-800 rounded-xl p-8 cursor-pointer transform transition-all duration-300 hover:scale-105 border border-purple-400/30 hover:border-purple-400 min-h-64 flex flex-col justify-between">
               <div>
                 <Gamepad2 className="w-12 h-12 text-purple-200 mb-4" />
                 <h2 className="text-2xl font-bold text-white mb-3">Memory Game</h2>
@@ -35,9 +46,8 @@ export default function PlayerPage() {
             </div>
           </Link>
 
-          {/* Puzzle Game */}
           <Link href="/player/puzzle">
-            <div className="group bg-gradient-to-br from-pink-600 to-pink-800 rounded-xl p-8 cursor-pointer transform transition-all duration-300 hover:scale-105 border border-pink-400/30 hover:border-pink-400 min-h-64 flex flex-col justify-between">
+            <div className="group bg-pink-800 rounded-xl p-8 cursor-pointer transform transition-all duration-300 hover:scale-105 border border-pink-400/30 hover:border-pink-400 min-h-64 flex flex-col justify-between">
               <div>
                 <Puzzle className="w-12 h-12 text-pink-200 mb-4" />
                 <h2 className="text-2xl font-bold text-white mb-3">Puzzle Game</h2>
@@ -50,25 +60,45 @@ export default function PlayerPage() {
           </Link>
         </div>
 
+        {/* NFT Collection CTA */}
+        <Link href="/player/nfts">
+          <div className="mb-8 p-5 bg-slate-800/60 border border-slate-700/50 hover:border-purple-500/40 rounded-xl flex items-center justify-between cursor-pointer transition-all hover:bg-slate-800">
+            <div className="flex items-center gap-4">
+              <Award className="w-8 h-8 text-purple-400" />
+              <div>
+                <p className="font-semibold text-purple-200">My NFT Collection</p>
+                <p className="text-sm text-slate-400">
+                  {nftCount > 0
+                    ? `${nftCount} achievement NFT${nftCount !== 1 ? 's' : ''} on Midnight preprod`
+                    : 'Play games to earn NFTs on Midnight preprod'}
+                </p>
+              </div>
+            </div>
+            <span className="text-purple-300 font-semibold text-sm">View →</span>
+          </div>
+        </Link>
+
         {/* Stats Section */}
-        <div className="mt-12 bg-slate-800/50 border border-purple-500/20 rounded-lg p-6">
+        <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-purple-300 mb-4">Your Performance</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div className="bg-slate-700/50 rounded p-3">
               <p className="text-slate-400">Games Played</p>
-              <p className="text-2xl font-bold text-purple-300">0</p>
+              <p className="text-2xl font-bold text-purple-300">{gamesPlayed}</p>
             </div>
             <div className="bg-slate-700/50 rounded p-3">
               <p className="text-slate-400">Total Score</p>
-              <p className="text-2xl font-bold text-purple-300">0</p>
+              <p className="text-2xl font-bold text-purple-300">{totalScore.toLocaleString()}</p>
             </div>
             <div className="bg-slate-700/50 rounded p-3">
-              <p className="text-slate-400">Best Streak</p>
-              <p className="text-2xl font-bold text-purple-300">0</p>
+              <p className="text-slate-400">NFTs Earned</p>
+              <p className="text-2xl font-bold text-purple-300">{nftCount}</p>
             </div>
             <div className="bg-slate-700/50 rounded p-3">
               <p className="text-slate-400">Avg Time</p>
-              <p className="text-2xl font-bold text-purple-300">--</p>
+              <p className="text-2xl font-bold text-purple-300">
+                {avgTime !== null ? `${avgTime}s` : '--'}
+              </p>
             </div>
           </div>
         </div>

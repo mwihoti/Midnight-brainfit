@@ -5,47 +5,46 @@ import { useGameStore } from '@/lib/store'
 import { initializePuzzleGame, calculateScore } from '@/lib/services/gameService'
 import { RotateCcw } from 'lucide-react'
 
-export function PuzzleGame() {
+interface PuzzleGameProps {
+  onComplete?: (score: number, timeSpent: number, moves: number) => void
+}
+
+export function PuzzleGame({ onComplete }: PuzzleGameProps) {
   const store = useGameStore()
   const [tiles, setTiles] = useState<number[]>([])
   const [moves, setMoves] = useState(0)
   const [time, setTime] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
+  const [completionHandled, setCompletionHandled] = useState(false)
 
-  // Initialize game
   useEffect(() => {
-    const newTiles = initializePuzzleGame({ difficulty: 1, gridSize: 4, pairsCount: 8 })
+    const diff = Math.max(1, Math.min(5, store.difficulty)) as 1 | 2 | 3 | 4 | 5
+    const newTiles = initializePuzzleGame({ difficulty: diff, gridSize: 4, pairsCount: 8 })
     setTiles(newTiles)
-  }, [])
+  }, [store.difficulty])
 
-  // Timer
   useEffect(() => {
-    if (isComplete) {
-      return
-    }
+    if (isComplete) return
     const timer = setInterval(() => setTime((t) => t + 1), 1000)
     return () => clearInterval(timer)
   }, [isComplete])
 
-  // Check win condition
   useEffect(() => {
     if (tiles.length === 0) return
     const isSolved = tiles.every((tile, idx) => tile === idx)
-    if (isSolved && moves > 0) {
+    if (isSolved && moves > 0 && !completionHandled) {
       setIsComplete(true)
+      setCompletionHandled(true)
       const score = calculateScore(moves, time, store.difficulty, true)
       store.updateScore(score)
+      onComplete?.(score, time, moves)
     }
-  }, [tiles, moves, time, store])
+  }, [tiles, moves, time, store, onComplete, completionHandled])
 
   const handleTileClick = (idx: number) => {
     if (isComplete) return
-
-    // Find empty space
     const emptyIdx = tiles.indexOf(16)
     if (emptyIdx === -1) return
-
-    // Check if adjacent
     const row = Math.floor(idx / 4)
     const col = idx % 4
     const emptyRow = Math.floor(emptyIdx / 4)
@@ -63,11 +62,13 @@ export function PuzzleGame() {
   }
 
   const resetGame = () => {
-    const newTiles = initializePuzzleGame({ difficulty: 1, gridSize: 4, pairsCount: 8 })
+    const diff = Math.max(1, Math.min(5, store.difficulty)) as 1 | 2 | 3 | 4 | 5
+    const newTiles = initializePuzzleGame({ difficulty: diff, gridSize: 4, pairsCount: 8 })
     setTiles(newTiles)
     setMoves(0)
     setTime(0)
     setIsComplete(false)
+    setCompletionHandled(false)
   }
 
   return (
@@ -83,8 +84,10 @@ export function PuzzleGame() {
           <p className="text-2xl font-bold text-pink-300">{time}s</p>
         </div>
         <div className="bg-slate-700 rounded p-3 text-center">
-          <p className="text-xs text-slate-400">Status</p>
-          <p className="text-2xl font-bold text-pink-300">{isComplete ? '✓' : '...'}</p>
+          <p className="text-xs text-slate-400">Misplaced</p>
+          <p className="text-2xl font-bold text-pink-300">
+            {tiles.filter((t, i) => t !== 16 && t !== i).length}
+          </p>
         </div>
       </div>
 
@@ -97,7 +100,7 @@ export function PuzzleGame() {
             className={`aspect-square rounded font-bold text-lg transition-all duration-200 ${
               tile === 16
                 ? 'bg-slate-700 cursor-default'
-                : 'bg-gradient-to-br from-pink-500 to-pink-600 hover:from-pink-400 hover:to-pink-500 cursor-pointer text-white shadow-lg'
+                : 'bg-pink-600 hover:bg-pink-500 cursor-pointer text-white'
             }`}
           >
             {tile !== 16 && tile + 1}
@@ -116,10 +119,10 @@ export function PuzzleGame() {
         </button>
       </div>
 
-      {/* Completion Message */}
+      {/* Completion */}
       {isComplete && (
         <div className="mt-6 p-4 bg-green-900/30 border border-green-500 rounded text-center">
-          <p className="text-green-300 font-semibold">🎉 Puzzle Solved!</p>
+          <p className="text-green-300 font-semibold">Puzzle Solved!</p>
           <p className="text-sm text-slate-300 mt-2">
             Score: {store.score} | Time: {time}s
           </p>

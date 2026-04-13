@@ -1,0 +1,169 @@
+// BrainFit Achievement NFT Contract
+// Copyright (C) 2025 BrainFit / Midnight Foundation
+// SPDX-License-Identifier: Apache-2.0
+//
+// Privacy-preserving cognitive health tracking with NFT achievements.
+// Each player deploys their own contract instance — data stays private.
+//
+// Compile with: npx compact-compiler brainfit.compact
+// Requires: Compact compiler v0.20+
+
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ─── Achievement status enum ──────────────────────────────────────────────────
+// Maps 1:1 to the achievement IDs in nftService.ts
+
+export enum Claimed {
+  UNCLAIMED,
+  CLAIMED
+}
+
+// ─── Public ledger state ───────────────────────────────────────────────────────
+// All fields are publicly verifiable on Midnight preprod.
+// Values are revealed only via disclose() inside circuits.
+
+export ledger gamesPlayed: Counter;           // total games played by this player
+export ledger contractVersion: Counter;       // incremented on each state change
+
+// NFT achievement flags (8 achievements)
+export ledger pioneer: Claimed;               // first game played
+export ledger memoryMaster: Claimed;          // completed a Memory Game
+export ledger logicSolver: Claimed;           // completed a Puzzle Game
+export ledger highPerformer: Claimed;         // scored 800+ in one game
+export ledger speedDemon: Claimed;            // completed a game in < 60 seconds
+export ledger completionist: Claimed;         // played both game types
+export ledger dedicated: Claimed;             // played 5+ games
+export ledger brainLegend: Claimed;           // scored 1000 in one game
+
+// Player identity — public key derived from private secret key via ZK
+export ledger playerPublicIdentity: Bytes<32>;
+
+// Caregiver access token — set by player, verified by caregiver
+export ledger caregiverAccessToken: Maybe<Bytes<32>>;
+
+// ─── Constructor ──────────────────────────────────────────────────────────────
+
+constructor() {
+  contractVersion.increment(1);
+  pioneer       = Claimed.UNCLAIMED;
+  memoryMaster  = Claimed.UNCLAIMED;
+  logicSolver   = Claimed.UNCLAIMED;
+  highPerformer = Claimed.UNCLAIMED;
+  speedDemon    = Claimed.UNCLAIMED;
+  completionist = Claimed.UNCLAIMED;
+  dedicated     = Claimed.UNCLAIMED;
+  brainLegend   = Claimed.UNCLAIMED;
+  caregiverAccessToken = none<Bytes<32>>();
+}
+
+// ─── Witness (private state) ──────────────────────────────────────────────────
+
+// Private 32-byte secret key — never leaves the player's device.
+// The Lace wallet / private state provider supplies this.
+witness localSecretKey(): Bytes<32>;
+
+// ─── Pure circuits ────────────────────────────────────────────────────────────
+
+// Derive a stable public identity from the player's private key.
+// This is a ZK-friendly hash — the secret key is never disclosed.
+export circuit playerPublicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "brainfit:player:v1:"),
+    sk
+  ]);
+}
+
+// Derive a caregiver access token from player + caregiver keys.
+// Proves access was granted without revealing either party's identity.
+export circuit deriveAccessToken(playerSk: Bytes<32>, caregiverPk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([
+    pad(32, "brainfit:access:v1:"),
+    playerPublicKey(playerSk),
+    caregiverPk
+  ]);
+}
+
+// ─── Game recording circuits ──────────────────────────────────────────────────
+
+// Called when player completes any game.
+// Sets playerPublicIdentity on first call, increments gamesPlayed.
+export circuit recordGameCompleted(): [] {
+  const pk = disclose(playerPublicKey(localSecretKey()));
+  playerPublicIdentity = pk;
+  gamesPlayed.increment(1);
+  contractVersion.increment(1);
+}
+
+// ─── Achievement claim circuits ───────────────────────────────────────────────
+// Each circuit is called by the TypeScript service when conditions are met.
+// The ZK proof certifies the claim happened — conditions verified client-side
+// before submitting the circuit call.
+
+export circuit claimPioneer(): [] {
+  assert(pioneer == Claimed.UNCLAIMED, "Pioneer NFT already claimed");
+  pioneer = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimMemoryMaster(): [] {
+  assert(memoryMaster == Claimed.UNCLAIMED, "Memory Master NFT already claimed");
+  memoryMaster = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimLogicSolver(): [] {
+  assert(logicSolver == Claimed.UNCLAIMED, "Logic Solver NFT already claimed");
+  logicSolver = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimHighPerformer(): [] {
+  assert(highPerformer == Claimed.UNCLAIMED, "High Performer NFT already claimed");
+  highPerformer = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimSpeedDemon(): [] {
+  assert(speedDemon == Claimed.UNCLAIMED, "Speed Demon NFT already claimed");
+  speedDemon = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimCompletionist(): [] {
+  assert(completionist == Claimed.UNCLAIMED, "Completionist NFT already claimed");
+  // Verify both game types were played (on-chain proof)
+  assert(memoryMaster == Claimed.CLAIMED, "Must complete a Memory Game first");
+  assert(logicSolver  == Claimed.CLAIMED, "Must complete a Puzzle Game first");
+  completionist = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimDedicated(): [] {
+  assert(dedicated == Claimed.UNCLAIMED, "Dedicated NFT already claimed");
+  dedicated = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+export circuit claimBrainLegend(): [] {
+  assert(brainLegend == Claimed.UNCLAIMED, "Brain Legend NFT already claimed");
+  brainLegend = Claimed.CLAIMED;
+  contractVersion.increment(1);
+}
+
+// ─── Caregiver access control ─────────────────────────────────────────────────
+
+// Grant a caregiver access by storing a ZK-derived access token on-chain.
+// The caregiver can verify their access by computing the same hash off-chain.
+export circuit grantCaregiverAccess(caregiverPublicKey: Bytes<32>): [] {
+  const token = disclose(deriveAccessToken(localSecretKey(), caregiverPublicKey));
+  caregiverAccessToken = some<Bytes<32>>(token);
+  contractVersion.increment(1);
+}
+
+// Revoke all caregiver access
+export circuit revokeCaregiverAccess(): [] {
+  caregiverAccessToken = none<Bytes<32>>();
+  contractVersion.increment(1);
+}
