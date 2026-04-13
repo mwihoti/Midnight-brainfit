@@ -46,7 +46,6 @@ import type {
   Proof,
   Binding,
   SignatureEnabled,
-  Transaction,
   TransactionId,
 } from '@midnight-ntwrk/ledger-v7'
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api'
@@ -55,7 +54,6 @@ import type { Logger } from 'pino'
 
 import {
   CompiledBrainFitContract,
-  witnesses,
   createBrainFitPrivateState,
   type BrainFitPrivateState,
   type BrainFitCircuitKeys,
@@ -71,7 +69,6 @@ const CONTRACT_ADDRESS_STORAGE_KEY = 'brainfit:contractAddress'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type PrivateStateId = typeof BRAINFIT_PRIVATE_STATE_KEY
-type PrivateStates = { readonly brainfitPrivateState: BrainFitPrivateState }
 
 export type BrainFitProviders = MidnightProviders<
   BrainFitCircuitKeys,
@@ -100,7 +97,7 @@ export interface OnChainAchievements {
  */
 export async function buildBrainFitProviders(
   connectedAPI: ConnectedAPI,
-  networkId: NetworkId,
+  _networkId: NetworkId,
   logger?: Logger,
 ): Promise<BrainFitProviders> {
   const addresses = await connectedAPI.getShieldedAddresses()
@@ -178,7 +175,8 @@ export class BrainFitContractService {
 
     const privateState = await BrainFitContractService.getOrCreatePrivateState(providers)
 
-    const deployed = await deployContract(providers, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const deployed = await (deployContract as any)(providers, {
       compiledContract: CompiledBrainFitContract,
       privateStateId: BRAINFIT_PRIVATE_STATE_KEY,
       initialPrivateState: privateState,
@@ -204,7 +202,8 @@ export class BrainFitContractService {
 
     const found = await findDeployedContract(providers, {
       contractAddress,
-      compiledContract: CompiledBrainFitContract,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      compiledContract: CompiledBrainFitContract as any,
       privateStateId: BRAINFIT_PRIVATE_STATE_KEY,
       initialPrivateState: privateState,
     })

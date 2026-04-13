@@ -31,7 +31,6 @@ export function getContractService(): ContractServiceHandle | null {
   return _contractService
 }
 
-const NFT_STORAGE_VERSION = 'v1'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -39,10 +39,10 @@ export const CompiledBrainFitContract = CompiledContract.make<
 // ─── Stub (remove once compiled) ─────────────────────────────────────────────
 // This stub lets TypeScript compile before the Compact compiler has run.
 // Replace with the real CompiledContract.make() call above after compilation.
+// Typed as unknown to avoid depending on a specific SDK type that may not
+// exist in the installed version of midnight-js-contracts.
 
-export const CompiledBrainFitContract = null as unknown as import(
-  '@midnight-ntwrk/midnight-js-contracts'
-).CompiledContractConfig<never>
+export const CompiledBrainFitContract = null as unknown
 
 // ─── Achievement circuit key type ─────────────────────────────────────────────
 // These are the names of the impure circuits exported by brainfit.compact.
