@@ -1,176 +1,184 @@
-# GameFit - MVP
+# BrainFit
 
-Private Cognitive Health Tracker for Dementia powered by Midnight Blockchain
+Brain training games for everyone — kids, adults, and developers.
+Memory matching and sliding puzzles with private score tracking powered by the Midnight blockchain.
 
-## Overview
-
-GameFit is an MVP that combines engaging cognitive games with privacy-preserving blockchain technology to help patients with dementia and individuals seeking to improve their cognitive health. The platform leverages Midnight blockchain to keep all data encrypted while enabling secure caregiver access.
- Link: https://brainfit.vercel.app/
-
-## Features
-
-### 🎮 Patient App
-- **Memory Game**: Match card pairs to improve memory recall
-- **Puzzle Game**: Arrange tiles to enhance problem-solving
-- **Auto-Adjusting Difficulty**: Games adapt based on performance
-- **Daily Engagement**: One game per day to maintain cognitive health
-- **Private Tracking**: All progress encrypted on Midnight
-
-### 🧠 Cognitive Benefits
-- ✅ Improved memory recall
-- ✅ Enhanced executive functions
-- ✅ Increased cognitive processing speed
-- ✅ Enhanced critical thinking skills
-- ✅ Improved focus and concentration
-- ✅ Lower risk of age-related cognitive decline
-
-### 🔐 Midnight Integration
-- **Encrypted Metrics**: Game scores stored encrypted on-chain
-- **Zero-Knowledge Proofs**: Verify caregiver permissions without exposing data
-- **Private Identity**: Patient identity never revealed to caregivers
-- **Secure State**: User state encrypted with commitment proofs
-
-### 👨‍👩‍👧 Caregiver Dashboard
-- **Attention Score Trends**: Monitor attention performance over time
-- **Memory Decline Patterns**: Track memory metrics with visual trends
-- **Engagement Levels**: See how consistently the patient plays
-- **No Personal Data Leakage**: Only summary metrics, no individual game data
-- **Permission Control**: Grant/revoke access to specific caregivers
-
-### 💳 Wallet Integration
-- **Lace Wallet Support**: Connect securely with your wallet
-- **Multi-Chain Ready**: Support for Midnight and Cardano networks
-- **User Control**: Full control over data access permissions
-
-## Project Structure
-
-```
-gamefit/
-├── src/
-│   ├── components/
-│   │   ├── MemoryGame.tsx          # Memory matching game
-│   │   ├── PuzzleGame.tsx          # Tile arrangement puzzle
-│   │   ├── WalletConnector.tsx     # Wallet connection UI
-│   │   ├── PerformanceDashboard.tsx # Cognitive metrics display
-│   │   └── CaregiverAccessControl.tsx # Permission management
-│   ├── pages/
-│   │   └── GameApp.tsx             # Main app container
-│   ├── services/
-│   │   ├── midnight.ts            # Midnight blockchain integration
-│   │   └── gameLogic.ts           # Game mechanics & scoring
-│   ├── hooks/
-│   │   ├── useGameStore.ts        # Zustand store
-│   │   └── useWallet.ts           # Wallet connection hook
-│   ├── types/
-│   │   └── index.ts               # TypeScript definitions
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-├── tailwind.config.js
-├── postcss.config.js
-└── package.json
-```
-
-## Tech Stack
-
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Blockchain**: Midnight + Ethers.js
-- **Build Tool**: Vite
-- **Icons**: Lucide React
-
-## Installation
-
-```bash
-cd gamefit
-npm install
-```
-
-## Development
-
-```bash
-npm run dev
-```
-
-The app will open at `http://localhost:5173`
-
-## Build
-
-```bash
-npm run build
-```
-
-## Game Mechanics
-
-### Memory Game
-- **Levels**: 1-4 (2-8 pairs)
-- **Scoring**: Based on difficulty, time, and accuracy
-- **Auto-Adjust**: Difficulty increases if score > 800, decreases if < 400
-
-### Puzzle Game
-- **Levels**: 1-4 (4x4 to 7x7 grid)
-- **Objective**: Arrange tiles in correct order
-- **Scoring**: Based on difficulty, time, and minimal moves
-
-## Privacy & Security
-
-1. **Data Encryption**: All game metrics encrypted before storage
-2. **Zero-Knowledge Proofs**: Verify permissions without exposing data
-3. **Identity Privacy**: Caregivers never see patient identity
-4. **User Control**: Patients control who can see what data
-5. **Blockchain**: Immutable audit trail on Midnight
-
-## Midnight Integration Points
-
-### Endpoints (Backend)
-- `POST /api/midnight/encrypt` - Encrypt game metrics
-- `POST /api/midnight/store` - Store encrypted data on-chain
-- `GET /api/midnight/metrics/:address` - Calculate cognitive metrics
-- `POST /api/midnight/grant-access` - Grant caregiver access
-- `POST /api/midnight/verify-access` - Verify with zero-knowledge proof
-- `GET /api/midnight/user-state/:address` - Get encrypted user state
-
-## Next Steps
-
-1. **Backend**: Implement Midnight integration endpoints
-2. **Smart Contracts**: Deploy ZK proof contracts on Midnight
-3. **Testing**: Unit tests for game logic & scoring
-4. **Mobile**: React Native version for mobile devices
-5. **AI**: ML-based difficulty adjustment algorithm
-6. **Analytics**: Privacy-preserving analytics dashboard
-
-## Target Users
-
-- 👴 Patients with early dementia
-- 👵 Elderly individuals seeking cognitive maintenance
-- 👨‍⚕️ Psychologists and neurologists
-- 🏥 Dementia care centers
-- 🏠 Assisted living facilities
-- 👨‍👩‍👧 Families caring for loved ones
-
-## Business Model
-
-- **Freemium**: Basic 1 game/day for free
-- **Premium**: Unlimited games, advanced metrics ($9.99/month)
-- **Caregiver**: Professional caregiver access ($19.99/month)
-- **Enterprise**: Hospital/Care center integration (custom)
-
-## Contributing
-
-This is an MVP. Contributions welcome!
-
-## License
-
-Proprietary - GameFit MVP
-
-## Contact
-
-Daniel - BrainFit Startups
+**Live:** https://brainfit.vercel.app/
 
 ---
 
-**GameFit**: Because cognitive health shouldn't require compromising privacy.
+## What it is
+
+BrainFit is a brain training game that runs on the web, as a browser extension, and inside VS Code. Players earn on-chain achievement NFTs for hitting milestones. All score data is encrypted before it leaves the device — no account required, no data sold.
+
+---
+
+## Games
+
+| Game | Objective | Scoring |
+|---|---|---|
+| Memory Match | Flip cards to find matching symbol pairs | Faster + fewer moves = higher score |
+| Sliding Puzzle | Slide tiles into correct order | Faster + fewer moves = higher score |
+
+Both games randomise their content on every reset — the symbol set in Memory Match is picked fresh from a pool of 24 each round.
+
+---
+
+## Features
+
+- **Achievement NFTs** — earn badges on Midnight preprod for hitting milestones (first game, speed runs, high scores, completionist)
+- **Private by design** — scores are AES-256-GCM encrypted before any network call; the chain sees only the proof
+- **Offline-first** — the game works fully without a wallet; NFTs are stored locally and synced when a connection is available
+- **Guest mode** — play instantly without installing anything; connect a Lace wallet to pin progress on-chain
+- **Family Access** — share achievements with a parent, friend, or coach via zero-knowledge permission grants (requires on-chain contract, coming soon)
+
+---
+
+## Distribution
+
+| Target | Status | How |
+|---|---|---|
+| Web app | Live | Deploy to Vercel / any Node host |
+| Browser extension | Ready to build | `bun run build:extension`, load `out/` as unpacked extension |
+| VS Code extension | Planned | See `EXTENSION_PLAN.md` |
+
+---
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| State | Zustand |
+| Blockchain | Midnight (preprod) |
+| Icons | Lucide React |
+| Package manager | Bun |
+
+---
+
+## Project structure
+
+```
+/
+├── app/
+│   ├── page.tsx                  # Home / landing
+│   ├── layout.tsx                # Root layout + metadata
+│   ├── globals.css
+│   ├── providers.tsx             # Error boundary
+│   ├── player/
+│   │   ├── page.tsx              # Game hub + stats
+│   │   ├── memory/page.tsx       # Memory game page
+│   │   ├── puzzle/page.tsx       # Puzzle game page
+│   │   └── nfts/page.tsx         # NFT collection
+│   └── caregiver/page.tsx        # Family Access (under development)
+├── components/
+│   ├── MemoryGame.tsx
+│   ├── PuzzleGame.tsx
+│   ├── GameResults.tsx
+│   ├── WalletConnector.tsx
+│   ├── NFTBadge.tsx
+│   ├── NFTCollection.tsx
+│   ├── NFTMintModal.tsx
+│   └── CaregiverControl.tsx
+├── lib/
+│   ├── store.ts                  # Zustand game store
+│   ├── services/
+│   │   ├── gameService.ts        # Game logic + scoring
+│   │   ├── nftService.ts         # Achievement minting
+│   │   └── midnightService.ts    # Encryption + chain calls
+│   ├── midnight/
+│   │   ├── contractService.ts    # BrainFit Midnight contract
+│   │   ├── walletService.ts      # Lace wallet connector
+│   │   └── privateStateProvider.ts
+│   └── shims/
+│       └── isomorphic-ws.js      # Browser WebSocket shim
+├── contracts/
+│   └── src/
+│       ├── brainfit.compact      # Compact contract source
+│       ├── index.ts              # Contract exports (stub until compiled)
+│       └── witnesses.ts          # Private state definition
+├── public/
+│   └── manifest.json             # Browser extension manifest (MV3)
+├── EXTENSION_PLAN.md             # Browser + VS Code extension roadmap
+├── next.config.js
+├── tailwind.config.js
+└── package.json
+```
+
+---
+
+## Getting started
+
+```bash
+# Install dependencies
+bun install
+
+# Start dev server
+bun dev
+# → http://localhost:3000
+```
+
+---
+
+## Building
+
+```bash
+# Web app
+bun run build
+
+# Browser extension (static export → out/)
+bun run build:extension
+# Then load out/ as an unpacked extension in chrome://extensions
+```
+
+---
+
+## Midnight contract
+
+The on-chain contract is written in Compact. It is not yet compiled — the app runs fully in local mode until it is.
+
+```bash
+# 1. Compile the contract (requires Compact compiler)
+bun run compact:compile
+
+# 2. Copy ZK keys to public/
+bun run compact:copy-keys
+
+# 3. Re-enable setupContract in components/WalletConnector.tsx
+# 4. Re-enable mintOnChainViaContract in lib/services/nftService.ts
+```
+
+---
+
+## Monetisation plan
+
+| Tier | Price | What you get |
+|---|---|---|
+| Free | — | Both games, local NFTs, unlimited play |
+| Paid NFTs | Per achievement | Hard-to-earn on-chain badges (Speed Demon, Brain Legend, etc.) |
+| VS Code Pro | ~$4/month | Unlimited play, streaks, leaderboard inside the editor |
+| Family plan | ~$5/month | Family Access dashboard for up to 4 players |
+
+---
+
+## Roadmap
+
+- [ ] Compile Compact contract and enable on-chain minting
+- [ ] Browser extension — submit to Chrome Web Store and Firefox Add-ons
+- [ ] VS Code extension — scaffold, publish to Marketplace
+- [ ] Difficulty progression that actually scales the grid size
+- [ ] Daily challenge mode with shared leaderboard
+- [ ] Family Access dashboard (requires on-chain contract)
+- [ ] Mobile-responsive polish for small screens
+
+---
+
+## License
+
+Proprietary — BrainFit
+
+## Contact
+
+Daniel — BrainFit
